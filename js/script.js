@@ -93,6 +93,15 @@ const playMusic = (track, pause = false) => {
   document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
 };
 
+function getCurrentTrackFileName(){
+  try{
+    const last = currentSong.src.split("/").slice(-1)[0];
+    return decodeURI(last);
+  } catch(e){
+    return "";
+  }
+}
+
 async function displayAlbums() {
   let cardcontainer = document.querySelector(".cardcontainer");
   cardcontainer.innerHTML = "";
@@ -235,7 +244,7 @@ async function main() {
   // Add an event listener to previous
   previous.addEventListener("click", () => {
     console.log("previous clicked");
-    let index = songs.indexOf(currentSong.src.split("/").slice(-1)[0]);
+    let index = songs.indexOf(getCurrentTrackFileName());
     if (index - 1 >= 0) {
       playMusic(songs[index - 1]);
     }
@@ -244,7 +253,7 @@ async function main() {
   next.addEventListener("click", () => {
     currentSong.pause();
     console.log("next clicked");
-    let index = songs.indexOf(currentSong.src.split("/").slice(-1)[0]);
+    let index = songs.indexOf(getCurrentTrackFileName());
     if (index + 1 < songs.length) {
       playMusic(songs[index + 1]);
     }
