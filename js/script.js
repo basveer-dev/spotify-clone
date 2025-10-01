@@ -102,6 +102,22 @@ function getCurrentTrackFileName(){
   }
 }
 
+function playNext(){
+  if (!songs || songs.length === 0) return;
+  let index = songs.indexOf(getCurrentTrackFileName());
+  if (index === -1) index = 0;
+  const nextIndex = (index + 1) % songs.length;
+  playMusic(songs[nextIndex]);
+}
+
+function playPrev(){
+  if (!songs || songs.length === 0) return;
+  let index = songs.indexOf(getCurrentTrackFileName());
+  if (index === -1) index = 0;
+  const prevIndex = (index - 1 + songs.length) % songs.length;
+  playMusic(songs[prevIndex]);
+}
+
 async function displayAlbums() {
   let cardcontainer = document.querySelector(".cardcontainer");
   cardcontainer.innerHTML = "";
@@ -244,19 +260,13 @@ async function main() {
   // Add an event listener to previous
   previous.addEventListener("click", () => {
     console.log("previous clicked");
-    let index = songs.indexOf(getCurrentTrackFileName());
-    if (index - 1 >= 0) {
-      playMusic(songs[index - 1]);
-    }
+    playPrev();
   });
   // Add an event listener to next
   next.addEventListener("click", () => {
     currentSong.pause();
     console.log("next clicked");
-    let index = songs.indexOf(getCurrentTrackFileName());
-    if (index + 1 < songs.length) {
-      playMusic(songs[index + 1]);
-    }
+    playNext();
   });
 
   // Add an event to volume
@@ -267,6 +277,10 @@ async function main() {
       console.log("Setting volume to", e.target.value, "/100");
       currentSong.volume = parseInt(e.target.value) / 100;
     });
+  // Auto-advance to next track when current ends
+  currentSong.addEventListener("ended", () => {
+    playNext();
+  });
 
     // Add event listener to mute the track
     document.querySelector(".volume > img").addEventListener("click",  e=> {
