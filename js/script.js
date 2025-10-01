@@ -2,6 +2,19 @@ console.log("lets go javascript");
 let currentSong = new Audio();
 let songs;
 let currFolder;
+let manifest;
+
+async function loadManifest() {
+  try {
+    const res = await fetch("songs/manifest.json", { cache: "no-cache" });
+    if (res.ok) {
+      manifest = await res.json();
+      console.log("Loaded manifest", manifest);
+    }
+  } catch (e) {
+    console.warn("No manifest found or failed to load. Falling back to directory listing.");
+  }
+}
 
 function formatTime(sec) {
   if (isNaN(sec) || sec < 0) return "00:00"; // fallback
@@ -14,20 +27,28 @@ function formatTime(sec) {
 }
 
 async function getSongs(folder) {
-  currFolder = folder; // Store the current folder globally
-  // Changed function name from main to getSongs
-  let a = await fetch(`${folder}/`);
-  let response = await a.text();
-  console.log(response);
-  let div = document.createElement("div");
-  div.innerHTML = response;
-  let as = div.getElementsByTagName("a");
-  songs = [];
-  for (let index = 0; index < as.length; index++) {
-    const element = as[index];
-    if (element.href.endsWith(".mp3")) {
-      songs.push(element.href.split(`/${folder}/`)[1]);
-    } // Added missing closing brace for if statement
+  // If manifest is present, build the list from it
+  if (manifest && manifest.albums) {
+    const albumFolder = folder.startsWith("songs/") ? folder.split("/")[1] : folder;
+    const album = manifest.albums.find((a) => a.folder === albumFolder);
+    currFolder = `songs/${albumFolder}`;
+    songs = album ? [...album.tracks] : [];
+  } else {
+    currFolder = folder; // Store the current folder globally
+    // Fall back to directory listing (works locally when server exposes indexes)
+    let a = await fetch(`${folder}/`);
+    let response = await a.text();
+    console.log(response);
+    let div = document.createElement("div");
+    div.innerHTML = response;
+    let as = div.getElementsByTagName("a");
+    songs = [];
+    for (let index = 0; index < as.length; index++) {
+      const element = as[index];
+      if (element.href.endsWith(".mp3")) {
+        songs.push(element.href.split(`/${folder}/`)[1]);
+      }
+    }
   }
 
   // show all the songs in the playlist
@@ -73,34 +94,17 @@ const playMusic = (track, pause = false) => {
 };
 
 async function displayAlbums() {
-  let a = await fetch(`songs/`);
-  let response = await a.text();
-  console.log(response);
-  let div = document.createElement("div");
-  div.innerHTML = response;
-  let anchors = div.getElementsByTagName("a");
   let cardcontainer = document.querySelector(".cardcontainer");
-  let array = Array.from(anchors);
-  for (let index = 0; index < array.length; index++) {
-    const e = array[index];
-
-    // Parse link robustly and only accept /songs/<folder>/ paths
-    const url = new URL(e.getAttribute("href"), window.location.origin);
-    const parts = url.pathname.split("/").filter(Boolean); // ["songs", "<folder>"]
-    const isAlbumFolder = parts.length === 2 && parts[0] === "songs";
-    if (!isAlbumFolder) continue;
-
-    const folder = parts[1];
-
-    try {
-      // Get the metadata of the folder
-      let metaRes = await fetch(`songs/${folder}/info.json`);
-      if (!metaRes.ok) continue; // skip if no metadata
-      let meta = await metaRes.json();
-      console.log(meta);
-      cardcontainer.innerHTML =
-        cardcontainer.innerHTML +
-        `<div data-folder="${folder}" class="card">
+  cardcontainer.innerHTML = "";
+  // If manifest is present, render from it; else, attempt directory listing
+  if (manifest && manifest.albums) {
+    for (const album of manifest.albums) {
+      try {
+        let metaRes = await fetch(`songs/${album.folder}/info.json`);
+        let meta = metaRes.ok ? await metaRes.json() : { Title: album.folder, Description: "" };
+        cardcontainer.innerHTML =
+          cardcontainer.innerHTML +
+          `<div data-folder="${album.folder}" class="card">
               <div class="play">
                 <svg
                   width="45"
@@ -112,16 +116,54 @@ async function displayAlbums() {
                   <polygon points="40,30 70,50 40,70" fill="black" />
                 </svg>
               </div>
-              <img
-                src="songs/${folder}/cover.jpg"
-                alt=""
-              />
+              <img src="songs/${album.folder}/cover.jpg" alt="" />
+              <h3>${meta.Title ?? album.folder}</h3>
+              <p>${meta.Description ?? ""}</p>
+            </div>`;
+      } catch (err) {
+        console.error("Failed to render album from manifest", album.folder, err);
+      }
+    }
+  } else {
+    let a = await fetch(`songs/`);
+    let response = await a.text();
+    console.log(response);
+    let div = document.createElement("div");
+    div.innerHTML = response;
+    let anchors = div.getElementsByTagName("a");
+    let array = Array.from(anchors);
+    for (let index = 0; index < array.length; index++) {
+      const e = array[index];
+      const url = new URL(e.getAttribute("href"), window.location.origin);
+      const parts = url.pathname.split("/").filter(Boolean); // ["songs", "<folder>"]
+      const isAlbumFolder = parts.length === 2 && parts[0] === "songs";
+      if (!isAlbumFolder) continue;
+      const folder = parts[1];
+      try {
+        let metaRes = await fetch(`songs/${folder}/info.json`);
+        if (!metaRes.ok) continue;
+        let meta = await metaRes.json();
+        cardcontainer.innerHTML =
+          cardcontainer.innerHTML +
+          `<div data-folder="${folder}" class="card">
+              <div class="play">
+                <svg
+                  width="45"
+                  height="45"
+                  viewBox="0 0 100 100"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="50" cy="50" r="48" fill="#1ED760" />
+                  <polygon points="40,30 70,50 40,70" fill="black" />
+                </svg>
+              </div>
+              <img src="songs/${folder}/cover.jpg" alt="" />
               <h3>${meta.Title ?? folder}</h3>
               <p>${meta.Description ?? ""}</p>
             </div>`;
-    } catch (err) {
-      // ignore malformed JSON or network errors
-      console.error("Failed to load album metadata for", folder, err);
+      } catch (err) {
+        console.error("Failed to load album metadata for", folder, err);
+      }
     }
   }
   // Load the playlist whenever card is clicked
@@ -134,9 +176,16 @@ async function displayAlbums() {
 }
 
 async function main() {
-  // Get the list of all the songs
-  await getSongs("songs/ncs");
-  playMusic(songs[0], true);
+  await loadManifest();
+  // Choose default album
+  if (manifest && manifest.albums && manifest.albums.length > 0) {
+    await getSongs(`songs/${manifest.albums[0].folder}`);
+  } else {
+    await getSongs("songs/ncs");
+  }
+  if (songs && songs.length > 0) {
+    playMusic(songs[0], true);
+  }
 
   // Display all the albums on the page
   displayAlbums();
@@ -156,12 +205,15 @@ async function main() {
     document.querySelector(".songtime").innerHTML = `${formatTime(
       currentSong.currentTime
     )} / ${formatTime(currentSong.duration)}`;
-    document.querySelector(".circle").style.left =
-      (currentSong.currentTime / currentSong.duration) * 100 + "%";
+    if (isFinite(currentSong.duration) && currentSong.duration > 0) {
+      document.querySelector(".circle").style.left =
+        (currentSong.currentTime / currentSong.duration) * 100 + "%";
+    }
   });
 
   // Add an event listener to seekbar
   document.querySelector(".seekbar").addEventListener("click", (e) => {
+    if (!isFinite(currentSong.duration) || currentSong.duration <= 0) return;
     document.querySelector(".circle").style.left =
       (e.offsetX / e.target.getBoundingClientRect().width) * 100 + "%";
     const seekTime =

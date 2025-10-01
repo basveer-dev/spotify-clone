@@ -1,0 +1,127 @@
+{
+  "albums": [
+    {
+      "folder": "ankhiyalgulab",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Akhiyaan Gulaab (Teri Baaton Mein Aisa Uljha Jiya).mp3"
+      ]
+    },
+    {
+      "folder": "atifaslam",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Dil Diyan Gallan - (Raag.Fm).mp3",
+        "Jee Ve Sohneya Jee - (Raag.Fm).mp3",
+        "O Saathi - (Raag.Fm).mp3",
+        "Rafta Rafta - (Raag.Fm).mp3",
+        "Tera Hone Laga Hoon.mp3",
+        "Umeedon Ki - (Raag.Fm).mp3",
+        "Zindagi - (Raag.Fm).mp3"
+      ]
+    },
+    {
+      "folder": "cs",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "o sudh budh - arijit Singh.mp3"
+      ]
+    },
+    {
+      "folder": "jutummereho",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Jo Tum Mere Ho - (Raag.Fm).mp3"
+      ]
+    },
+    {
+      "folder": "kahanisuno",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Kahani Suno 2.0 - (Raag.Fm).mp3"
+      ]
+    },
+    {
+      "folder": "kanayari",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Kana Yaari - Kaifi Khalil  Eva B  Wahab Bugti .mp3"
+      ]
+    },
+    {
+      "folder": "lalpari",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "LAAL PARI - Tarun Mansukhani.mp3"
+      ]
+    },
+    {
+      "folder": "mahiyejinnasohna",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Mahiye Jinna Sohna - (Raag.Fm).mp3"
+      ]
+    },
+    {
+      "folder": "ncs",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Maula Mere Maula - Nauheed Cyrusi.mp3",
+        "o sudh budh - arijit Singh - Copy.mp3",
+        "Pasoori - Ali Sethi x Shae Gill.mp3",
+        "Ye Tune Kya Kiya - Javed Bashir - Copy.mp3"
+      ]
+    },
+    {
+      "folder": "palpal",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Pal Pal  @Ali Soomro Music - Copy.mp3"
+      ]
+    },
+    {
+      "folder": "pasori",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Pasoori - Ali Sethi x Shae Gill - Copy.mp3"
+      ]
+    },
+    {
+      "folder": "ranjaan",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Raanjhan - (Raag.Fm).mp3"
+      ]
+    },
+    {
+      "folder": "sahiba",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Sahiba - (Raag.Fm).mp3"
+      ]
+    },
+    {
+      "folder": "saiyara",
+      "cover": "cover.jpg",
+      "info": "info.json",
+      "tracks": [
+        "Saiyaara - Faheem A, Arslan l - Copy.mp3"
+      ]
+    }
+  ]
+}
+
+
